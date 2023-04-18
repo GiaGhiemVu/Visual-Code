@@ -1,0 +1,13 @@
+.battleship {
+    font-size: 64px;                /*Set size là 48 pixel cho battleShip*/
+    text-align: center;          
+    color: red;
+    font-family: 'DynaPuff', cursive;
+}
+
+.content{
+    display: flex;                  /*Đặt hiển thị kiểu flexbox*/
+    justify-content: top;           /*Canh giữa dọc*/
+    height: 80vh;                   /*Set là 100% view high*/
+    gap: 30px;                      /*Set khoảng cách dọc giữa các phần tử con là 30px*/
+}
