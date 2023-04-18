@@ -5,9 +5,46 @@
     font-family: 'DynaPuff', cursive;
 }
 
-.content{
-    display: flex;                  /*Đặt hiển thị kiểu flexbox*/
-    justify-content: top;           /*Canh giữa dọc*/
-    height: 80vh;                   /*Set là 100% view high*/
-    gap: 30px;                      /*Set khoảng cách dọc giữa các phần tử con là 30px*/
+.game{
+    display: flex;
+    flex-direction: row;
+}
+
+.LeftContent{
+    height: 300px;
+    width: 260px;
+}
+
+.LeftText{
+    height: 40px;
+    font-size: 36px;          
+    color: black;
+    font-family: 'DynaPuff';
+}
+
+.board-container {
+    display: table;
+    table-layout: fixed;
+    width: 100%; /* Chỉnh độ rộng của bảng */
+}
+
+.board {
+    border: 1px solid #000;
+    margin-right: 20px;
+    display: table-cell;
+    vertical-align: top; /* Căn lề trên của các ô */
+}
+
+.board-row {
+    display: table-row;
+}
+
+.board-cell {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #000;
+    display: table-cell;
+    align-items: center;
+    justify-content: center;
+    text-align: center; /* Căn giữa nội dung trong ô */
 }
