@@ -1,7 +1,7 @@
 This is a BattleShip simulator game
 
 # Contribution by
-Nguyễn Thị Kim Thu – ITITIU20315
+Nguyễn Thị Kim Thu – ITITIU20315\n
 Nguyễn Minh Hiếu – ITDSIU20063
 Trần Quốc Anh – ITDSIU20001
 Vũ Gia Khiêm – ITITIU20229
