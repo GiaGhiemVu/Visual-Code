@@ -15,21 +15,33 @@
 
 .LeftContent{
     height: 450px;
-    width: 300px;
+    width: 350px;
     margin-left: 20vh;
 }
 
 .RightContent{
     height: 450px;
-    width: 300px;
+    width: 350px;
     margin-right: 20vh;
+}
+
+.MidContent{
+    margin-top: 10vh;
+}
+
+.TurnText{
+    margin: auto;
+    height: 40px;
+    font-size: 6vh;
+    color: rgb(255, 0, 212);
+    font-family: 'DynaPuff';
 }
 
 .Text{
     margin: auto;
     height: 40px;
-    font-size: 36px;
-    color: black;
+    font-size: 4vh;
+    color: red;
     font-family: 'DynaPuff';
     margin-bottom: 20px;
 }
@@ -67,4 +79,8 @@ body {
     background-image: url("/BattleShip/resource/battleship.jpeg");
     background-size: cover; /* tự động co giãn ảnh để vừa kích thước nền */
     background-repeat: no-repeat; /* không lặp lại ảnh */
+}
+
+.selected{
+    background-color: red;
 }
