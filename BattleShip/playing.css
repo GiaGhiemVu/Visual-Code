@@ -8,18 +8,30 @@
 .game{
     display: flex;
     flex-direction: row;
+    justify-content:space-between;
+    margin-top: 10vh;
+    border: 1vh;
 }
 
 .LeftContent{
-    height: 300px;
-    width: 260px;
+    height: 450px;
+    width: 300px;
+    margin-left: 20vh;
 }
 
-.LeftText{
+.RightContent{
+    height: 450px;
+    width: 300px;
+    margin-right: 20vh;
+}
+
+.Text{
+    margin: auto;
     height: 40px;
-    font-size: 36px;          
+    font-size: 36px;
     color: black;
     font-family: 'DynaPuff';
+    margin-bottom: 20px;
 }
 
 .board-container {
@@ -33,6 +45,7 @@
     margin-right: 20px;
     display: table-cell;
     vertical-align: top; /* Căn lề trên của các ô */
+    background-color: gray;
 }
 
 .board-row {
@@ -40,11 +53,18 @@
 }
 
 .board-cell {
-    width: 20px;
-    height: 20px;
-    border: 1px solid #000;
+    width: 35px;
+    height: 30px;
+    border: 1px solid black;
     display: table-cell;
     align-items: center;
     justify-content: center;
     text-align: center; /* Căn giữa nội dung trong ô */
+    background-color: white ;
+}
+
+body {
+    background-image: url("/BattleShip/resource/battleship.jpeg");
+    background-size: cover; /* tự động co giãn ảnh để vừa kích thước nền */
+    background-repeat: no-repeat; /* không lặp lại ảnh */
 }

@@ -30,3 +30,9 @@
 .goodbyetext{
     font-size: 36px;                /*Chỉnh size của see you again lên 36px*/
 }
+
+body {
+    background-image: url("/BattleShip/resource/battleship.jpeg");
+    background-size: cover; /* tự động co giãn ảnh để vừa kích thước nền */
+    background-repeat: no-repeat; /* không lặp lại ảnh */
+}
