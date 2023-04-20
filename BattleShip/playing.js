@@ -68,27 +68,22 @@ leftContentDiv.appendChild(playerTable);
     Check Valid Position
 */
 
-checkPositionValid = function(x, y, table, shipSize, direction){
-    if(direction == "vertical"){
-        table.forEach(function(computerCell){
-            for(let i = 0; i < shipSize; i++){
-                if(computerCell.dataset.col === (x+i) && computerCell.dataset.row === y){
-                    return false;
-                }
+function checkPositionValid(x, y, table, shipSize, direction) {
+    if (direction == "vertical") {
+        for (let i = 0; i < shipSize; i++) {
+            if (x >= size || y + i >= size || 
+                table[(y + i) * size + x].dataset.value != 0 ) {
+                return false;
             }
-        })
-    }
-
-    if(direction == "horizon"){
-        table.forEach(function(computerCell){
-            for(let i = 0; i < shipSize; i++){
-                if(computerCell.dataset.col ===x && computerCell.dataset.row === (y+i)){
-                    return false;
-                }
+        }
+    } else {
+        for (let i = 0; i < shipSize; i++) {
+            if (x + i >= size || y >= size || 
+                table[y * size + x + i].dataset.value != 0 ) {
+                return false;
             }
-        })
+        }
     }
-
     return true;
 }
 
@@ -104,49 +99,57 @@ randomDirection = function(){return Math.floor(Math.random() * 2) == 0 ? "horizo
     Random Computer position Ship
 */
 let computer_Board = document.querySelectorAll("#computerCell");
-let computer_Ship = [2,3,4,4,5];
+let computer_Ship = [2,3,4,5];
 let computer_Ship_Position = [];
+const maxtries = 100;
+
+computer_Board[5].dataset.value = 1;
+console.log(checkPositionValid(5,0,computer_Board,4,"vertical"));
 
 computer_Ship.forEach(function(shipSize){
+    let tries = 1;
     let x = Math.floor(Math.random()*size);
     let y = Math.floor(Math.random()*size);
     let direction = randomDirection();
-    console.log(x + " " + y + " " + direction + shipSize);
-    console.log(checkPositionValid(x,y,computer_Board,shipSize,direction));
+
     while(checkPositionValid(x,y,computer_Board,shipSize,direction)==false){
         x = Math.floor(Math.random()*size);
         y = Math.floor(Math.random()*size);
         direction = randomDirection();
+        
+        if(tries > maxtries){
+            console.log("Maximum tries");
+        }
+        
+        console.log(shipSize+" "+tries+" "+checkPositionValid(x,y,computer_Board,shipSize,direction));
+        tries++;
     }
-
-    let positions = [];
-    console.log(x + " " + y + " " + direction);
 
     if(direction == "vertical"){
         computer_Board.forEach(function(computerCell){
             for(let i = 0; i < shipSize; i++){
-                console.log("vertical run");
                 if(computerCell.dataset.col == (x+i) && computerCell.dataset.row == y){
+                    if(computerCell.dataset.value == 1){
+                        console.log("Trùng");
+                        console.log(shipSize);
+                    }
                     computerCell.dataset.value = 1;
-                    positions.push(computerCell);
-                    console.log(computerCell.dataset.col + " " + computerCell.dataset.row);
                 }
             }
         })
     } else {
         computer_Board.forEach(function(computerCell){
             for(let i = 0; i < shipSize; i++){
-                console.log("horizon run");
                 if(computerCell.dataset.col == (x) && computerCell.dataset.row == (y+i)){
+                    if(computerCell.dataset.value == 1){
+                        console.log("Trùng");
+                        console.log(shipSize);
+                    }
                     computerCell.dataset.value = 1;
-                    positions.push(computerCell);
-                    console.log(computerCell.dataset.col + " " + computerCell.dataset.row);
                 }
             }
         })
     }
-    computer_Ship_Position.push(positions);
-
 });
 
 /*
@@ -159,7 +162,7 @@ computer_Ship.forEach(function(shipSize){
 //Player attack on ComputerZone
 computer_Board.forEach(function(computerCell) {
     computerCell.addEventListener("click", function() {
-        console.log(computerCell.dataset.value);
+        console.log(computerCell.dataset.col+" "+computerCell.dataset.row+" "+computerCell.dataset.value);
         if(computerCell.dataset.value==0){
             computerCell.classList.add("selected");
             computerCell.id = "Empty";
@@ -169,9 +172,9 @@ computer_Board.forEach(function(computerCell) {
             computerCell.id = "Ship";
             computerCell.dataset.value = -1;
         }
-        console.log(computerCell.dataset.value);
     });
 });
+
 /*
     New Section:
     Turn Action
