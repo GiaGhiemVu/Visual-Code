@@ -104,7 +104,7 @@ randomDirection = function(){return Math.floor(Math.random() * 2) == 0 ? "horizo
     Random Computer position Ship
 */
 let computer_Board = document.querySelectorAll("#computerCell");
-let computer_Ship = [3,4];
+let computer_Ship = [2,3,4,4,5];
 let computer_Ship_Position = [];
 
 computer_Ship.forEach(function(shipSize){
@@ -135,14 +135,14 @@ computer_Ship.forEach(function(shipSize){
         })
     } else {
         computer_Board.forEach(function(computerCell){
-        for(let i = 0; i < shipSize; i++){
-            console.log("horizon run");
-            if(computerCell.dataset.col === (x) && computerCell.dataset.row === (y+i)){
-                computerCell.dataset.value = 1;
-                positions.push(computerCell);
-                console.log(computerCell.dataset.col + " " + computerCell.dataset.row);
+            for(let i = 0; i < shipSize; i++){
+                console.log("horizon run");
+                if(computerCell.dataset.col == (x) && computerCell.dataset.row == (y+i)){
+                    computerCell.dataset.value = 1;
+                    positions.push(computerCell);
+                    console.log(computerCell.dataset.col + " " + computerCell.dataset.row);
+                }
             }
-        }
         })
     }
     computer_Ship_Position.push(positions);
