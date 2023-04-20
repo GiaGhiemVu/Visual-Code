@@ -81,6 +81,10 @@ body {
     background-repeat: no-repeat; /* không lặp lại ảnh */
 }
 
-.selected{
+#Empty{
     background-color: red;
+}
+
+#Ship{
+    background-color: green;
 }
