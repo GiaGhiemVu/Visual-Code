@@ -92,26 +92,36 @@ function checkPositionValid(x, y, table, shipSize, direction) {
     randomDirection
 */
 
-randomDirection = function(){return Math.floor(Math.random() * 2) == 0 ? "horizon" : "vertical";};
+randomDirection = function(){return Math.floor(Math.random() * 2) == 0 ? "horizontal" : "vertical";};
 
 /*
     New Section:
     Random Computer position Ship
 */
 let computer_Board = document.querySelectorAll("#computerCell");
-let computer_Ship = [2,3,4,5];
+let computer_Ship = [2,2,3,3,4,5];
 let computer_Ship_Position = [];
 const maxtries = 100;
 
-computer_Board[5].dataset.value = 1;
-console.log(checkPositionValid(5,0,computer_Board,4,"vertical"));
+/*
+    Debug Section
+*/
 
+// computer_Board[size*3+1].dataset.value = 1;
+// computer_Board[size*3+2].dataset.value = 1;
+// computer_Board[size*3+3].dataset.value = 1;
+// console.log(checkPositionValid(3,1,computer_Board,4,"vertical"));
+
+
+/*
+    Ending Debug
+*/
 computer_Ship.forEach(function(shipSize){
     let tries = 1;
     let x = Math.floor(Math.random()*size);
     let y = Math.floor(Math.random()*size);
     let direction = randomDirection();
-
+    console.log(shipSize+" "+tries+" "+x+" "+y+" "+direction+" "+checkPositionValid(x,y,computer_Board,shipSize,direction));
     while(checkPositionValid(x,y,computer_Board,shipSize,direction)==false){
         x = Math.floor(Math.random()*size);
         y = Math.floor(Math.random()*size);
@@ -121,14 +131,14 @@ computer_Ship.forEach(function(shipSize){
             console.log("Maximum tries");
         }
         
-        console.log(shipSize+" "+tries+" "+checkPositionValid(x,y,computer_Board,shipSize,direction));
+        console.log(shipSize+" "+tries+" "+x+" "+y+" "+direction+" "+checkPositionValid(x,y,computer_Board,shipSize,direction));
         tries++;
     }
 
     if(direction == "vertical"){
         computer_Board.forEach(function(computerCell){
             for(let i = 0; i < shipSize; i++){
-                if(computerCell.dataset.col == (x+i) && computerCell.dataset.row == y){
+                if(computerCell.dataset.col == (x) && computerCell.dataset.row == (y+i)){
                     if(computerCell.dataset.value == 1){
                         console.log("Trùng");
                         console.log(shipSize);
@@ -140,7 +150,7 @@ computer_Ship.forEach(function(shipSize){
     } else {
         computer_Board.forEach(function(computerCell){
             for(let i = 0; i < shipSize; i++){
-                if(computerCell.dataset.col == (x) && computerCell.dataset.row == (y+i)){
+                if(computerCell.dataset.col == (x+i) && computerCell.dataset.row == (y)){
                     if(computerCell.dataset.value == 1){
                         console.log("Trùng");
                         console.log(shipSize);
