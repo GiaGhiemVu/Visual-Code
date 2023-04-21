@@ -11,9 +11,9 @@ This is a BattleShip simulator game
 - Ship contain all part of the ship.
 
 # Rule:
-1.Click on the oppinent sea zone to attack that coordinate.
-2.Waiting to next turn.
-3.Continue until you destroy all Ship or you losing all Ship.
+- 1.Click on the oppinent sea zone to attack that coordinate.
+- 2.Waiting to next turn.
+- 3.Continue until you destroy all Ship or you losing all Ship.
 
 # Langueges:
 - This project using 3 simple langueges Java, html, and css.
