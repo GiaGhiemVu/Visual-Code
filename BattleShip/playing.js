@@ -13,11 +13,19 @@ function game(){
     
     Ending Debug
     */
+    let ship = [2,2,3,3,4,5];
+    let playerShipPosition = [];
+    let computer_Position = [];
+    let ComputerShipArray = [0,0,0,0,0,0];
+
     createNewTable(size);
 
     let computer_Board = document.querySelectorAll("#computerCell");
 
-    computer_placeShip(computer_Board);
+    computer_placeShip(computer_Board,computer_Position);
+
+    drawPlayerShip(ship);
+    drawComputerShip(ship);
 
     //Player attack on ComputerZone
     computer_Board.forEach(function(computerCell) {
@@ -31,6 +39,13 @@ function game(){
                 computerCell.classList.add("selected");
                 computerCell.id = "Ship";
                 computerCell.dataset.value = -1;
+                let table = document.querySelectorAll(".CShip-dboard-cell");
+                computer_Position.forEach(function (position){
+                    console.log("checking:"+position+"Position:"+computerCell.dataset.col+" "+computerCell.dataset.row);
+                    if(position[1] == computerCell.dataset.col && position[2] == computerCell.dataset.row){
+                        shipAttacked(ComputerShipArray,position,table);
+                    }
+                })
             }
             if(checkWinningCondition(computer_Board)){
                 console.log("Winner");
@@ -81,7 +96,7 @@ function createNewTable(size){
         Tạo bảng Player 
     */
     let leftContentDiv = document.querySelector('.LeftContent');
-    let playerTable = document.createElement('computerTable');
+    let playerTable = document.createElement('playerTable');
     playerTable.id = 'player_Board';
     playerTable.className = 'board';
 
@@ -131,8 +146,9 @@ function randomDirection(){
     return Math.floor(Math.random() * 2) == 0 ? "horizontal" : "vertical";
 };
 
-function computer_placeShip(computer_Board){
+function computer_placeShip(computer_Board, computer_Position){
     const maxtries = 100;
+    let count = 0;
     let computer_Ship = [2,2,3,3,4,5];
     computer_Ship.forEach(function(shipSize){
         let tries = 1;
@@ -162,6 +178,8 @@ function computer_placeShip(computer_Board){
                             console.log(shipSize);
                         }
                         computerCell.dataset.value = 1;
+                        let position = [count,computerCell.dataset.col,computerCell.dataset.row];
+                        computer_Position.push(position);
                     }
                 }
             })
@@ -174,10 +192,14 @@ function computer_placeShip(computer_Board){
                             console.log(shipSize);
                         }
                         computerCell.dataset.value = 1;
+                        let position = [count,computerCell.dataset.col,computerCell.dataset.row];
+                        computer_Position.push(position);
+
                     }
                 }
             })
         }
+        count++;
     });
 }
 
@@ -190,4 +212,63 @@ function checkWinningCondition(table) {
     return true;
 };
 
+function drawPlayerShip(shipSize){
+    shipSize.forEach(function(sizeIndex){
+        let playerShipdiv = document.querySelector('.PlayerShip');
+        let playerShipTable = document.createElement('table');
+        playerShipTable.id = 'player_Board';
+        playerShipTable.className = 'dboard';
+    
+        let playerShipRow = document.createElement('tr');
+        for (let i = 0; i < sizeIndex; i++) {
+            let playerShipCell = document.createElement('td');
+            playerShipCell.className = 'PShip-dboard-cell';
+            // Khởi tạo giá trị
+            playerShipCell.dataset.row = 0;
+            playerShipCell.dataset.col = i;
+            playerShipCell.dataset.value = i;
+            playerShipRow.appendChild(playerShipCell);
+        }
+        playerShipTable.appendChild(playerShipRow);
+        playerShipdiv.appendChild(playerShipTable);
+    })
+}
+
+function drawComputerShip(shipSize,position) {
+    let index = 0;
+    shipSize.forEach(function (sizeIndex) {
+        let computerShipDiv = document.querySelector('.ComputerShip');
+        let computerShipTable = document.createElement('table'); // changed shiptable to table
+        computerShipTable.id = 'computer_Board';
+        computerShipTable.className = 'dboard';
+
+        let computerShipRow = document.createElement('tr');
+        for (let i = 0; i < sizeIndex; i++) {
+            let computerShipCell = document.createElement('td');
+            computerShipCell.className = 'CShip-dboard-cell';
+            // Khởi tạo giá trị
+            computerShipCell.dataset.row = 0;
+            computerShipCell.dataset.col = i;
+            computerShipCell.dataset.value = index;
+            computerShipRow.appendChild(computerShipCell);
+        }
+
+        computerShipTable.appendChild(computerShipRow);
+        computerShipDiv.appendChild(computerShipTable);
+        index++;
+    });
+}
+
+function shipAttacked(ship ,position, table){
+    console.log("Begin method");
+    for (let i = 0; i < table.length; i++) {
+        console.log("Run"+table[i].dataset.value+" "+table[i].dataset.col+" "+table[i].dataset.row);
+        if(position[0] == table[i].dataset.value && ship[position[0]] == table[i].dataset.col){
+            table[i].id = "attacked";
+            console.log("true");
+            ship[position[0]]++;
+            break;
+        }
+    }
+}
 /**************************End function section*********************************/

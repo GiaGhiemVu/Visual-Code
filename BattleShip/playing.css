@@ -39,18 +39,13 @@
 
 .Text{
     margin: auto;
-    height: 40px;
+    height: 35px;
     font-size: 4vh;
     color: red;
     font-family: 'DynaPuff';
     margin-bottom: 20px;
 }
 
-.board-container {
-    display: table;
-    table-layout: fixed;
-    width: 100%; /* Chỉnh độ rộng của bảng */
-}
 
 .board {
     border: 1px solid #000;
@@ -58,10 +53,6 @@
     display: table-cell;
     vertical-align: top; /* Căn lề trên của các ô */
     background-color: gray;
-}
-
-.board-row {
-    display: table-row;
 }
 
 .board-cell {
@@ -87,4 +78,41 @@ body {
 
 #Ship{
     background-color: green;
+}
+
+.PlayerShip,.ComputerShip{
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    justify-content:space-between;
+    margin-bottom: 15px;
+}
+
+.Ship{
+    margin-left: 20vh;
+    margin-right: 20vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.dboard{
+    border: 1px solid #000;
+    margin-right: 20px;
+    vertical-align: top; /* Căn lề trên của các ô */
+    background-color: lightgray;
+}
+
+.PShip-dboard-cell,.CShip-dboard-cell{
+    width: 35px;
+    height: 20px;
+    border: 1px solid black;
+    display: table-cell;
+    align-items: center;
+    justify-content: center;
+    text-align: center; /* Căn giữa nội dung trong ô */
+    background-color: green;
+}
+
+#attacked{
+    background-color: red;
 }
