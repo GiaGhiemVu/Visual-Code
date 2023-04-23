@@ -30,7 +30,7 @@
 }
 
 .TurnText{
-    margin: auto;
+    margin-bottom: 30px;
     height: 40px;
     font-size: 6vh;
     color: rgb(255, 0, 212);
@@ -45,7 +45,6 @@
     font-family: 'DynaPuff';
     margin-bottom: 20px;
 }
-
 
 .board {
     border: 1px solid #000;
@@ -115,4 +114,46 @@ body {
 
 #attacked{
     background-color: red;
+}
+
+.StartButton {
+    font-size: 3vh;                /*Kích thước font cho các button là 24px */
+    padding: 16px 32px;             /*Khoảng cách lề nội dung trong button là 16px trên dưới và 32px trái phải */
+    border-radius: 16px;            /*Bo tròn hình chữ nhật*/
+    margin: 0 20px;                 /*Canh giữa 20px*/
+}
+
+.Button{
+    display: flex;
+    flex-direction: column; 
+    justify-content: center;
+    text-align: center;
+    gap: 1vh;
+    font-size: 4vh;
+    width: 20vh;
+    align-items: center;
+    flex: 1;
+}
+
+.Button button{
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    font-size: 75%;
+}
+
+.NewText{
+    height: 40px;
+    font-size: 3vh;
+    color: rgb(49, 3, 72);
+    font-family: 'DynaPuff';
+    text-align: center;
+}
+
+.Invalid{
+    background-color: gray;
+}
+
+#selected{
+    background-color: gray;
 }
