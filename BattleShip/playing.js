@@ -1,8 +1,11 @@
 /**************************Begin game section*********************************/
 const size = 10;
+const left = [-1,0], right = [1,0], up = [0,-1], down = [0,1];
 
 let startButton = document.querySelector(".StartButton");
 let gamephase = "Waiting";
+let player_Position = [];
+let state = 'random';
 
 startButton.addEventListener("click", function() {
     startButton.removeEventListener("click", arguments.callee);
@@ -12,7 +15,6 @@ startButton.addEventListener("click", function() {
         createNewTable(size);
 
         let player_Board = document.querySelectorAll("#playerCell");
-        let player_Position = [];
         let shipSize = [2,2,3,3,4,5];
         let playerShipNo = 0;
         let direction;
@@ -41,9 +43,11 @@ startButton.addEventListener("click", function() {
             if(playerShipNo < shipSize.length){
                 beginButton.className = "Invalid";
             } else{
+                let newText = document.querySelector('.NewText');
                 horizonButton.remove();
                 verticalButton.remove();
                 beginButton.remove();
+                newText.textContent = 'Combat phase';
                 game(shipSize,player_Position);
             }
         });
@@ -51,18 +55,17 @@ startButton.addEventListener("click", function() {
         player_Board.forEach(function(cell){
             cell.addEventListener('click', function(){
                 if(playerShipNo < shipSize.length && direction != undefined){
-                    let x = cell.dataset.col;
-                    let y = cell.dataset.row;
-                    console.log(cell.dataset.col+" "+cell.dataset.row+" "+direction+" "+checkPositionValid(x,y,player_Board,shipSize,direction));
-                    if(checkPositionValid(x,y,player_Board,shipSize,direction)){
+                    let x = parseInt(cell.dataset.col);
+                    let y = parseInt(cell.dataset.row);
+                    console.log(cell.dataset.value+" "+x+" "+y+" "+direction+" "+checkPositionValid(x,y,player_Board,shipSize,direction));
+                    if(checkPositionValid(x,y,player_Board,shipSize[playerShipNo],direction)){
                         if (direction == "vertical") {
                             console.log("Check");
                             player_Board.forEach(function (playerCell) {
                             for (let i = 0; i < shipSize[playerShipNo]; i++) {
                                 if (playerCell.dataset.col == (x) && playerCell.dataset.row == (parseInt(y) + i)) {
-                                        console.log("vo day lun");
                                         playerCell.dataset.value = 1;
-                                        playerCell.id = "selected";
+                                        playerCell.classList.add("selected");
                                         let position = [playerShipNo, playerCell.dataset.col, playerCell.dataset.row];
                                         player_Position.push(position);
                                     }
@@ -73,9 +76,8 @@ startButton.addEventListener("click", function() {
                             player_Board.forEach(function (playerCell) {
                                 for (let i = 0; i < shipSize[playerShipNo]; i++) {
                                     if (playerCell.dataset.col == (parseInt(x) + i) && playerCell.dataset.row == (y)) {
-                                        console.log("vo day lun");
                                         playerCell.dataset.value = 1;
-                                        playerCell.id = "selected";
+                                        playerCell.classList.add("selected");
                                         let position = [playerShipNo, playerCell.dataset.col, playerCell.dataset.row];
                                         player_Position.push(position);
                                     }
@@ -108,65 +110,38 @@ function game(ship, player_Position){
     
     let computer_Position = [];
     let ComputerShipArray = [0,0,0,0,0,0];
-
+    let computerAttackArray = [];
     let computer_Board = document.querySelectorAll("#computerCell");
+
+    let player_Board = document.querySelectorAll("#playerCell");
+    let playerShipArray = [0,0,0,0,0,0];
 
     computer_placeShip(computer_Board,computer_Position);
 
     drawPlayerShip(ship);
     drawComputerShip(ship);
 
+    let currentPosition = [];
+    let direction = randomComputerDirection();
+    let directionArray = [];
+    let rootPosition = [];
+
     //Player attack on ComputerZone
     computer_Board.forEach(function(computerCell) {
         computerCell.addEventListener("click", function() {
             // console.log(computerCell.dataset.col+" "+computerCell.dataset.row+" "+computerCell.dataset.value);
-            if(computerCell.dataset.value==0){
-                computerCell.classList.add("selected");
-                computerCell.id = "Empty";
-                computerCell.dataset.value = -1;
-            } else if(computerCell.dataset.value==1){
-                computerCell.classList.add("selected");
-                computerCell.id = "Ship";
-                computerCell.dataset.value = -1;
-                let table = document.querySelectorAll(".CShip-dboard-cell");
-                computer_Position.forEach(function (position){
-                    // console.log("checking:"+position+"Position:"+computerCell.dataset.col+" "+computerCell.dataset.row);
-                    if(position[1] == computerCell.dataset.col && position[2] == computerCell.dataset.row){
-                        shipAttacked(ComputerShipArray,position,table);
-                    }
-                })
+
+            if(computerCell.dataset.value != -1){
+                computerAttack(player_Board,computerAttackArray,playerShipArray,player_Position,rootPosition, currentPosition, direction, directionArray);
             }
+
+            attack(computer_Board,computerCell.dataset.col,computerCell.dataset.row,ComputerShipArray,computer_Position);
+
             if(checkWinningCondition(computer_Board)){
                 console.log("Winner");
             }
         });
     });
-
-    let player_Board = document.querySelectorAll("#playerCell");
-
-    player_Board.forEach(function(cell){
-        cell.addEventListener('click', function(){
-            if(cell.dataset.value==0){
-                cell.classList.add("selected");
-                cell.id = "Empty";
-                cell.dataset.value = -1;
-            } else if(cell.dataset.value==1){
-                cell.classList.add("selected");
-                cell.id = "Ship";
-                cell.dataset.value = -1;
-                let table = document.querySelectorAll(".PShip-dboard-cell");
-                player_Position.forEach(function (position){
-                    // console.log("checking:"+position+"Position:"+computerCell.dataset.col+" "+computerCell.dataset.row);
-                    if(position[1] == cell.dataset.col && position[2] == cell.dataset.row){
-                        shipAttacked(playerShipArray,position,table);
-                    }
-                })
-            }
-            if(checkWinningCondition(player_Board)){
-                console.log("Loser");
-            }
-        });
-    })
 }
 
 /**************************Begin function section*********************************/
@@ -242,15 +217,13 @@ function createNewTable(size){
 function checkPositionValid(x, y, table, shipSize, direction) {
     if (direction == "vertical") {
         for (let i = 0; i < shipSize; i++) {
-            if (x >= size || y + i >= size || 
-                table[(y + i) * size + x].dataset.value != 0 ) {
+            if (parseInt(x) >= size || parseInt(y) + i >= size || table[(parseInt(y) + i) * size + parseInt(x)].dataset.value != 0 ) {
                 return false;
             }
         }
     } else {
         for (let i = 0; i < shipSize; i++) {
-            if (x + i >= size || y >= size || 
-                table[y * size + x + i].dataset.value != 0 ) {
+            if (parseInt(x) + i >= size || parseInt(y) >= size || table[parseInt(y) * size + parseInt(x) + i].dataset.value != 0 ) {
                 return false;
             }
         }
@@ -421,5 +394,236 @@ function changePlacingPhase(){
     button.appendChild(beginButton);
  
     midContent.appendChild(button);
+    console.log(player_Position);
+}
+
+function computerAttack(table, computerAttackArray, shipArray, position, rootPosition, currentPosition, direction, directionArray) {
+    if (computerAttackArray.length == 0) {
+        let x = Math.floor(Math.random() * size);
+        let y = Math.floor(Math.random() * size);
+        computerAttackArray.push([x, y, ...table[y * size + x].dataset.value]);
+        PlayerAttacked(table, x, y, shipArray, position);
+    } else {
+        if(state == 'random'){
+            console.log(state+' '+'*******************');
+            let lastAttack = computerAttackArray[computerAttackArray.length-1];
+            let x = lastAttack[0];
+            let y = lastAttack[1];
+            let value = lastAttack[2];
+
+            if(value == 1){
+                state = 'tracking';
+            } else if(value == 0){
+                while(computerAttackArray.some(pos => x == pos[0] && y == pos[1])){
+                    x = Math.floor(Math.random() * size);
+                    y = Math.floor(Math.random() * size);
+                }
+
+                computerAttackArray.push([x, y, ...table[y * size + x].dataset.value]);
+                PlayerAttacked(table, x, y, shipArray, position);
+            } 
+        }
+
+        if(state == 'tracking'){
+            if(directionArray.length == 0){
+                console.log(state+' '+'*******************' + 'first');
+                rootPosition = [...computerAttackArray[computerAttackArray.length-1]];
+                currentPosition = [...computerAttackArray[computerAttackArray.length-1]];
+            }
+            if(directionArray.length >= 4){
+                console.log(state+' '+'*******************' + 'reset');
+                directionArray.splice(0, directionArray.length);
+                state = 'random';
+                let x = Math.floor(Math.random() * size);
+                let y = Math.floor(Math.random() * size);
+                
+                while(computerAttackArray.some(pos => x == pos[0] && y == pos[1])){
+                    x = Math.floor(Math.random() * size);
+                    y = Math.floor(Math.random() * size);
+                }
+                computerAttackArray.push([x, y, ...table[y * size + x].dataset.value]);
+                PlayerAttacked(table, x, y, shipArray, position);
+            } else {
+                ShipAttack(table,rootPosition, currentPosition, direction, directionArray);
+                computerAttackArray.push([...currentPosition]);
+                console.log(currentPosition);
+                PlayerAttacked(table, currentPosition[0], currentPosition[1], shipArray, position);
+            }
+        }
+        console.log(computerAttackArray);
+    }
+}
+
+function attack(table, x, y, shipArray, position){
+    let cell = table[parseInt(y)*size+parseInt(x)];
+    if(cell.dataset.value == 0){
+        cell.classList.add("selected");
+        cell.id = "Empty";
+        cell.dataset.value = -1;
+
+    } else if(cell.dataset.value==1){
+        cell.classList.add("selected");
+        cell.id = "Ship";
+        cell.dataset.value = -1;
+
+        let tables = document.querySelectorAll(".CShip-dboard-cell");
+        position.forEach(function (position){
+            // console.log("checking:"+position+"Position:"+computerCell.dataset.col+" "+computerCell.dataset.row);
+            if(position[1] == cell.dataset.col && position[2] == cell.dataset.row){
+                shipAttacked(shipArray,position,tables);
+            }
+        })
+
+    }
+}
+
+function PlayerAttacked(table, x, y, shipArray, position){
+    let cell = table[parseInt(y)*size+parseInt(x)];
+    if(cell.dataset.value == 0){
+        cell.classList.remove('.selected');
+        cell.classList.add('.playerAttacked');
+        cell.dataset.value = -1;
+
+    } else if(cell.dataset.value==1){
+        cell.classList.remove('.selected');
+        cell.classList.add('.playerShipAttacked');
+        cell.dataset.value = -1;
+
+        let tables = document.querySelectorAll(".PShip-dboard-cell");
+        position.forEach(function (position){
+            // console.log("checking:"+position+"Position:"+computerCell.dataset.col+" "+computerCell.dataset.row);
+            if(position[1] == cell.dataset.col && position[2] == cell.dataset.row){
+                shipAttacked(shipArray,position,tables);
+            }
+        })
+    }
+}
+
+function ShipAttack(board, rootPosition, currentPosition, direction, directionArray){
+    console.log(directionArray);
+    console.log(currentPosition + ' '+ direction +' ' +rootPosition);
+    if(currentPosition[2] == 1){
+        if(currentPosition[0] == 0 && direction == 'left'){
+            changeDir(currentPosition, rootPosition, directionArray);
+            currentPosition = [...rootPosition];
+        }
+
+        if(currentPosition[0] == 9 && direction == 'right'){
+            changeDir(currentPosition, rootPosition, directionArray);
+            currentPosition = [...rootPosition];
+        }
+
+        if(currentPosition[1] == 0 && direction == 'up'){
+            changeDir(currentPosition, rootPosition, directionArray);
+            currentPosition = [...rootPosition];
+        }
+
+        if(currentPosition[1] == 9 && direction == 'down'){
+            changeDir(currentPosition, rootPosition, directionArray);
+            currentPosition = [...rootPosition];
+        }
+
+        if(direction == 'left'){
+            currentPosition[0] = currentPosition[0] + left[0];
+            currentPosition[1] = currentPosition[1] + left[1];
+        } else if (direction == 'right'){
+            currentPosition[0] = currentPosition[0] + right[0];
+            currentPosition[1] = currentPosition[1] + right[1];
+        } else if (direction == 'up'){
+            currentPosition[0] = currentPosition[0] + up[0];
+            currentPosition[1] = currentPosition[1] + up[1];
+        } else {
+            currentPosition[0] = currentPosition[0] + down[0];
+            currentPosition[1] = currentPosition[1] + down[1];
+        }
+        currentPosition[2] = board[currentPosition[1]*size+currentPosition[0]].dataset.value;
+        console.log(board[currentPosition[1]*size+currentPosition[0]].dataset.value);
+    } else {
+        if(directionArray.length >= 4){
+            console.log('Full Direction');
+            return;
+        } else {
+            changeDir(currentPosition, rootPosition, directionArray);
+            direction = [...directionArray[directionArray.length-1]];
+        }
+
+        currentPosition = updatePos(...rootPosition, direction);
+        
+        while(currentPosition[2] === -1){
+            changeDir(currentPosition, rootPosition, directionArray);
+            direction = [...directionArray[directionArray.length-1]];
+            currentPosition = updatePos(...rootPosition, direction);
+        }
+    }
+}
+
+function randomComputerDirection() {
+    let directions = ["up", "down", "left", "right"];
+    let randomIndex = Math.floor(Math.random() * directions.length);
+    return directions[randomIndex];
+}
+
+function changeDir(currentPosition, rootPosition, directionArray){
+    if(directionArray.length >= 4){
+        return;
+    }
+
+    if(currentPosition[0] == 0 || currentPosition[1] == 0 || currentPosition[0] == 9 || currentPosition[1] == 9){
+        if(currentPosition[0] == 0){
+            directionArray.push('left');
+        }
+
+        if(currentPosition[0] == 9){
+            directionArray.push('right');
+        }
+
+        if(currentPosition[1] == 0){
+            directionArray.push('up');
+        }
+
+        if(currentPosition[1] == 9){
+            directionArray.push('down');
+        }
+    }
+
+    if(Math.abs(currentPosition[0] - rootPosition[0]) > 1 || Math.abs(currentPosition[1] - rootPosition[1]) > 1){
+        console.log('OppositeDirection')
+        if(direction == 'left' ){
+            direction = 'right';
+        } else if(direction == 'right'){
+            direction = 'up';
+        } else if(direction == 'up'){
+            direction = 'down';
+        } else{
+            direction = 'left';
+        }
+    } else{
+        console.log('randomDirection')
+        direction = randomComputerDirection();
+        while(directionArray.some(dir => direction === dir)){
+            direction = randomComputerDirection();
+        }
+        directionArray.push([...direction]);
+    }
+}
+
+function updatePos(currentPosition, direction){
+    if(direction == 'left'){
+        currentPosition[0] = currentPosition[0] + left[0];
+        currentPosition[1] = currentPosition[1] + left[1];
+    } else if (direction == 'right'){
+        currentPosition[0] = currentPosition[0] + right[0];
+        currentPosition[1] = currentPosition[1] + right[1];
+    } else if (direction == 'up'){
+        currentPosition[0] = currentPosition[0] + up[0];
+        currentPosition[1] = currentPosition[1] + up[1];
+    } else {
+        currentPosition[0] = currentPosition[0] + down[0];
+        currentPosition[1] = currentPosition[1] + down[1];
+    }
+
+    currentPosition[2] = board[currentPosition[1]*size+currentPosition[0]].dataset.value;
+
+    return currentPosition;
 }
 /**************************End function section*********************************/

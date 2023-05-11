@@ -154,6 +154,14 @@ body {
     background-color: gray;
 }
 
-#selected{
+.selected{
     background-color: gray;
+}
+
+.playerAttacked{
+    background-color: red;
+}
+
+.playerShipAttacked{
+    background-color: green;
 }
