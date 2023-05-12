@@ -1,11 +1,13 @@
+/**************************   Fetch section  *********************************/
+
 /**************************Begin game section*********************************/
+
+
 const size = 10;
 const left = [-1,0], right = [1,0], up = [0,-1], down = [0,1];
 
 let startButton = document.querySelector(".StartButton");
-let gamephase = "Waiting";
 let player_Position = [];
-let state = 'random';
 
 startButton.addEventListener("click", function() {
     startButton.removeEventListener("click", arguments.callee);
@@ -124,7 +126,7 @@ function game(ship, player_Position){
     let currentPosition = [];
     let direction = randomComputerDirection();
     let directionArray = [];
-    let rootPosition = [];
+    const rootPosition = new Queue();
 
     //Player attack on ComputerZone
     computer_Board.forEach(function(computerCell) {
@@ -132,7 +134,7 @@ function game(ship, player_Position){
             // console.log(computerCell.dataset.col+" "+computerCell.dataset.row+" "+computerCell.dataset.value);
 
             if(computerCell.dataset.value != -1){
-                computerAttack(player_Board,computerAttackArray,playerShipArray,player_Position,rootPosition, currentPosition, direction, directionArray);
+                computerAttack(player_Board,computerAttackArray,playerShipArray,player_Position, rootPosition, currentPosition, direction, directionArray);
             }
 
             attack(computer_Board,computerCell.dataset.col,computerCell.dataset.row,ComputerShipArray,computer_Position);
@@ -404,15 +406,14 @@ function computerAttack(table, computerAttackArray, shipArray, position, rootPos
         computerAttackArray.push([x, y, ...table[y * size + x].dataset.value]);
         PlayerAttacked(table, x, y, shipArray, position);
     } else {
-        if(state == 'random'){
-            console.log(state+' '+'*******************');
+        if(rootPosition.length === 0){
             let lastAttack = computerAttackArray[computerAttackArray.length-1];
             let x = lastAttack[0];
             let y = lastAttack[1];
             let value = lastAttack[2];
 
             if(value == 1){
-                state = 'tracking';
+                rootPosition.enqueue(lastAttack);
             } else if(value == 0){
                 while(computerAttackArray.some(pos => x == pos[0] && y == pos[1])){
                     x = Math.floor(Math.random() * size);
@@ -424,14 +425,14 @@ function computerAttack(table, computerAttackArray, shipArray, position, rootPos
             } 
         }
 
-        if(state == 'tracking'){
+        if(rootPosition.length != 0){
             if(directionArray.length == 0){
-                console.log(state+' '+'*******************' + 'first');
-                rootPosition = [...computerAttackArray[computerAttackArray.length-1]];
-                currentPosition = [...computerAttackArray[computerAttackArray.length-1]];
+                console.log('first');
+                currentPosition = rootPosition.peek();
             }
             if(directionArray.length >= 4){
-                console.log(state+' '+'*******************' + 'reset');
+                console.log('reset');
+                rootPosition.dequeue();
                 directionArray.splice(0, directionArray.length);
                 state = 'random';
                 let x = Math.floor(Math.random() * size);
