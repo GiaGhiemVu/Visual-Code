@@ -59,60 +59,26 @@ export class Board{
         }
     }
 
-    attacked(position, who){
-        console.log(position);
+    playerAttacked(position){
         if(this.table[position.getX()][position.getY()] === 0 || this.table[position.getX()][position.getY()] === 1){
-            if(who === "player"){
-                const playerTable = document.querySelectorAll("#playerCell");
-                const playerShip = document.querySelectorAll("#player_ship_cell");
+            const comTable = document.querySelectorAll("#computer_Cell");
 
-                if(this.table[position.getX()][position.getY()] === 0 ){
-                    playerTable[position.getX()*this.size+position.getY()].classList.add("Empty");
-                }
-                if(this.table[position.getX()][position.getY()] === 1 ){
-                    playerTable[position.getX()*this.size+position.getY()].classList.remove("selectedCell");
-                    playerTable[position.getX()*this.size+position.getY()].classList.add("ShipHitted");
-                    for(let i = 0; i < this.shipIndex; i++){
-                        if(this.shipArray[i].some(pos => pos === position)){
-                            playerShip.forEach(function(cell){
-                                if(cell.dataset.col === shipIndex[i] && cell.dataset.row === i){
-                                    cell.classList.add("Empty");
-                                }
-                            })
-                            this.shipIndex[i]++;
-                        }
-                    }
-                }
-            } else {
-                const comTable = document.querySelectorAll("#computer_Cell");
-                const comShip = document.querySelectorAll("#computer_ship_cell");
-
-                if(this.table[position.getX()][position.getY()] === 0 ){
-                    comTable[position.getX()*this.size+position.getY()].setAttribute("background-color",'red');
-                }
-                if(this.table[position.getX()][position.getY()] === 1 ){
-                    comTable[position.getX()*this.size+position.getY()].classList.remove("selectedCell");
-                    comTable[position.getX()*this.size+position.getY()].classList.add("ShipHitted");
-                    for(let i = 0; i < this.shipIndex; i++){
-                        if(this.shipArray[i].some(pos => pos === position)){
-                            comShip.forEach(function(cell){
-                                if(cell.dataset.col === shipIndex[i] && cell.dataset.row === i){
-                                    cell.classList.add("Empty");
-                                }
-                            })
-                            this.shipIndex[i]++;
-                        }
-                    }
-                }
+            if(this.table[position.getX()][position.getY()] === 0 ){
+                comTable[position.getX()*this.size+position.getY()].classList.add("Empty");
+            }
+            if(this.table[position.getX()][position.getY()] === 1 ){
+                comTable[position.getX()*this.size+position.getY()].classList.remove("selectedCell");
+                comTable[position.getX()*this.size+position.getY()].classList.add("ShipHitted");
+                this.syncComShipArray(position);
             }
             this.table[position.getX()][position.getY()] = -1;
         } else {
             console.log("Invalid Attacked");
-            if(who === "computer"){
-                this.attacked(position, "computer");
-            }
-            
         }
+    }
+
+    computerAttacked(position){
+        this.table[position.getX()][position.getY()] = -1;
     }
 
     checkValidPlacingShip(ship){
@@ -208,15 +174,33 @@ export class Board{
             }
         }
     }
+
+    syncComShipArray(position){
+        const computerShipTable = document.querySelectorAll("#com_ship_cell");
+        for(let i = 0; i < this.shipIndex.length; i++){
+            for(let j = 0; j < this.shipArray[i].cordinates.length; j++){
+                if(this.shipArray[i].cordinates[j].getX() === position.getX() && this.shipArray[i].cordinates[j].getY() === position.getY()){
+                    computerShipTable.forEach((cell) => {
+                        // console.log(cell.dataset.col, this.shipIndex[i], cell.dataset.row, i)
+                        if (parseInt(cell.dataset.col) === this.shipIndex[i] && parseInt(cell.dataset.row) === i) {
+                            cell.classList.add("Empty");
+                        }
+                    });
+                    this.shipIndex[i] += 1;
+                }
+            }
+        }
+    }
 }
 
 export class Computer{
-    constructor(Board){
+    constructor(playerBoard, comBoard){
         this.attackArray = new Queue();
         this.trackingDir = [];
         this.currentPos = new AdvancePosition();
         this.lastAttack;
-        this.Board = Board;
+        this.playerTable = playerBoard;
+        this.computerTable = comBoard;
         this.currentShip = 0;
     }
 
@@ -224,16 +208,16 @@ export class Computer{
         while(this.currentShip <= 5){
             let newPos = this.randomPos();
             let direction = this.randowPlacingDirection();
-            let ship = new Ship(new AdvancePosition(newPos.getX(),newPos.getY(),direction),this.Board.shipSize[this.currentShip]);
+            let ship = new Ship(new AdvancePosition(newPos.getX(),newPos.getY(),direction),this.computerTable.shipSize[this.currentShip]);
             
-            while(!this.Board.checkValidPlacingShip(ship)){
+            while(!this.computerTable.checkValidPlacingShip(ship)){
                 newPos = this.randomPos();
                 direction = this.randowPlacingDirection();
-                ship = new Ship(new AdvancePosition(newPos.getX(),newPos.getY(),direction),this.Board.shipSize[this.currentShip]);
+                ship = new Ship(new AdvancePosition(newPos.getX(),newPos.getY(),direction),this.computerTable.shipSize[this.currentShip]);
             }
 
-            this.Board.createShip(newPos, direction);
-            this.Board.syncComShipToTable();
+            this.computerTable.createShip(newPos, direction);
+            this.computerTable.syncComShipToTable();
             this.currentShip = this.currentShip + 1;
         }
     }
@@ -245,70 +229,132 @@ export class Computer{
             this.lastAttack = this.trackingAttack();
         }
 
-        return this.lastAttack;
+        console.log(this.lastAttack);
     }
 
     randomAttack(){
+        console.log("randomAttack");
         let pos = this.randomPos();
-        while(this.checkValidPos(pos)){
+        while(!this.checkValidPos(pos)){
             pos = this.randomPos();
         }
 
-        if(this.Board.table[pos.x][pos.y] === 1){
-            this.attackArray.enqueue(pos);
+        if(this.playerTable.table[pos.x][pos.y] === 1){
+            this.attackArray.enqueue(...[pos]);
+            pos.value = 1;
         }
 
-        this.Board.attacked(pos);
+        this.playerTable.computerAttacked(pos);
+        this.syncPlayerShipArray(pos);
         
         return pos;
     }
 
     trackingAttack(){
+        console.log("trackingAttack");
         if(this.trackingDir.length >= 4){
             this.trackingDir = [];
             this.attackArray.dequeue();
         }
         
-        this.currentPos = this.attackArray.peek();
-        this.currentPos.direction = this.randomDirection();
+        this.currentPos = this.createNewPosWithDir(this.lastAttack, this.randomDirection());
 
-        while(this.trackingDir.some(dirs => this.currentPos.direction === dirs)){
+        console.log(this.lastAttack);
+        if(this.lastAttack.value === 0 || this.lastAttack === -1){
+            console.log("again");
+            this.currentPos = this.attackArray.peek();
             this.currentPos.direction = this.randomDirection();
+
+            while(this.trackingDir.some(dirs => this.currentPos.direction === dirs)){
+                this.currentPos.direction = this.randomDirection();
+            }
+        } else if(this.lastAttack === 1){
+            console.log("continue");
+            this.currentPos = this.lastAttack;
         }
 
+        console.log(this.currentPos);
         if(this.checkValidPos(this.currentPos)){
             let newPos = this.createNewPosWithDir(this.currentPos,this.currentPos.direction);
             if(newPos.value === 1){
                 this.currentPos = newPos;
-                this.Board.attacked(this.currentPos);
+                this.playerTable.computerAttacked(this.currentPos);
             } else {
-                this.Board.attacked(newPos);
+                this.playerTable.computerAttacked(newPos);
                 this.trackingDir.push(...[this.currentPos.direction]);
             }
+
+            this.syncPlayerShipArray(newPos);
+
+            console.log(this.attackArray);
+            return newPos;
         } else {
             this.trackingAttack();
-        } 
+        }
     }
 
     randomPos(){
-        let x = Math.floor(Math.random() * this.Board.size);
-        let y = Math.floor(Math.random() * this.Board.size);
+        let x = Math.floor(Math.random() * this.computerTable.size);
+        let y = Math.floor(Math.random() * this.computerTable.size);
         let newPos = new Position(x,y);
         return newPos;
     }
 
     checkValidPos(Position){
-        if(this.Board.table[Position.x][Position.y] === 0 || this.Board.table[Position.x][Position.y] === 1){
-            return true;
-        } else {
-            return false;
+        if(this.playerTable.table[Position.x][Position.y] === 0 || this.playerTable.table[Position.x][Position.y] === 1){
+            if(Position.getX() <= 9 && Position.getX() >= 0 && Position.getY() <= 9 && Position.getY() >= 0)
+            {
+                return true;
+            }
         }
+
+        return false;
     }
 
     createNewPosWithDir(Position,direction){
         const up = [1,0], down = [-1,0], left = [0,-1], right = [0,1];
-        let x = Position.x;
-        let y = Position.y;
+        let x = Position.getX();
+        let y = Position.getY();
+
+        if(x === 0){
+            this.trackingDir.push("up");
+            if(direction === "up"){
+                direction = this.randomDirection();
+                while(this.trackingDir.some(dirs => this.currentPos.direction === dirs)){
+                    this.currentPos.direction = this.randomDirection();
+                }
+            }
+        }
+
+        if(x === 9){
+            this.trackingDir.push("down");
+            if(direction === "down"){
+                direction = this.randomDirection();
+                while(this.trackingDir.some(dirs => this.currentPos.direction === dirs)){
+                    this.currentPos.direction = this.randomDirection();
+                }
+            }
+        }
+
+        if(y === 0){
+            this.trackingDir.push("left");
+            if(direction === "left"){
+                direction = this.randomDirection();
+                while(this.trackingDir.some(dirs => this.currentPos.direction === dirs)){
+                    this.currentPos.direction = this.randomDirection();
+                }
+            }
+        }
+
+        if(y === 9){
+            this.trackingDir.push("right");
+            if(direction === "right"){
+                direction = this.randomDirection();
+                while(this.trackingDir.some(dirs => this.currentPos.direction === dirs)){
+                    this.currentPos.direction = this.randomDirection();
+                }
+            }
+        }
 
         if(direction === "up"){
             x = x + up[0];
@@ -325,7 +371,7 @@ export class Computer{
         }
 
         let newPos = new AdvancePosition(x,y,direction);
-        newPos.value = this.Board.table[x][y];
+        newPos.value = this.playerTable.table[x][y];
         return newPos;
     }
 
@@ -340,7 +386,32 @@ export class Computer{
         let randomIndex = Math.floor(Math.random() * directions.length);
         return directions[randomIndex];
     }
+
+    syncPlayerShipArray(position){
+        const playerShipTable = document.querySelectorAll("#player_ship_cell");
+        const playerTable = document.querySelectorAll("#playerCell");
+
+        if(this.playerTable.table[position.getX()][position.getY()] === 1){
+            playerTable[position.getX()*this.computerTable.size+position.getY()].classList.add("ShipHitted");
+
+            for(let i = 0; i < this.playerTable.shipIndex.length; i++){
+                for(let j = 0; j < this.playerTable.shipArray[i].cordinates.length; j++){     
+                    if(this.playerTable.shipArray[i].cordinates[j].getX() === position.getX() && this.playerTable.shipArray[i].cordinates[j].getY() === position.getY()){
+                        playerShipTable.forEach((cell) => {
+                            if (parseInt(cell.dataset.col) === this.playerTable.shipIndex[i] && parseInt(cell.dataset.row) === i) {
+                                cell.classList.add("Empty");
+                            }
+                        });
+                        this.playerTable.shipIndex[i] += 1;
+                    }
+                }
+            }
+        } else {
+            playerTable[position.getX()*this.computerTable.size+position.getY()].classList.add("Empty");
+        }
+    }
 }
+
 
 export class Player{
     constructor(Board){
@@ -353,7 +424,7 @@ export class Controller{
     constructor(size) {
         this.computerTable = new Board(size);
         this.playerTable = new Board(size);
-        this.computer = new Computer(this.computerTable);
+        this.computer = new Computer(this.playerTable, this.computerTable);
         this.player = new Player(this.playerTable);
         this.state = "prepare";
     }
@@ -482,7 +553,7 @@ export class Game{
     }
 
     drawShipTable(shipSize, table, board){
-        
+        let count = 0;
         if(table === "player"){
             shipSize.forEach(function(sizeIndex){
                 let playerShipdiv = document.querySelector('.PlayerShip');
@@ -490,7 +561,7 @@ export class Game{
                 playerShipTable.id = 'player_ship_data';
                 playerShipTable.className = 'ship_data';
             
-                let count = 0;
+                
                 let playerShipRow = document.createElement('tr');
                 for (let i = 0; i < sizeIndex; i++) {
                     let playerShipCell = document.createElement('td');
@@ -499,10 +570,11 @@ export class Game{
                     // Khởi tạo giá trị
                     for(let j = 0; j < board.shipArray[i].cordinates.length; j++){
                         playerShipCell.dataset.row = count;
-                        playerShipCell.dataset.col = j;
+                        playerShipCell.dataset.col = i;
                         playerShipRow.appendChild(playerShipCell);
                     }
                 }
+                count++;
                 playerShipTable.appendChild(playerShipRow);
                 playerShipdiv.appendChild(playerShipTable);
             })
@@ -513,7 +585,6 @@ export class Game{
                 comShipTable.id = 'com_ship_data';
                 comShipTable.className = 'ship_data';
             
-                let count = 0;
                 let comShipRow = document.createElement('tr');
                 for (let i = 0; i < sizeIndex; i++) {
                     let comShipCell = document.createElement('td');
@@ -522,10 +593,11 @@ export class Game{
                     // Khởi tạo giá trị
                     for(let j = 0; j < board.shipArray[i].cordinates.length; j++){
                         comShipCell.dataset.row = count;
-                        comShipCell.dataset.col = j;
+                        comShipCell.dataset.col = i;
                         comShipRow.appendChild(comShipCell);
                     }
                 }
+                count++;
                 comShipTable.appendChild(comShipRow);
                 comShipdiv.appendChild(comShipTable);
             })

@@ -102,10 +102,9 @@ function changeState(){
 
         computerTable.forEach(function(cell){
             cell.addEventListener('click', function(){
-                console.log(cell, cell.dataset.row, cell.dataset.col);
-                if(game.controller.computerTable.table[cell.dataset.col][cell.dataset.row]){
-                    game.controller.computerTable.attacked(new Position(cell.dataset.col, cell.dataset.row),"computer");
-                    game.controller.playerTable.attacked(game.controller.computer.attack(),"player");
+                if(game.controller.computerTable.table[cell.dataset.col][cell.dataset.row] !== -1){
+                    game.controller.computerTable.playerAttacked(new Position(cell.dataset.col, cell.dataset.row));
+                    game.controller.computer.attack();
                 } else {
                     console.log(cell);
                 }
