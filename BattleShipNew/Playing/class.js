@@ -198,7 +198,6 @@ export class Computer{
         this.attackArray = new Queue();
         this.trackingDir = [];
         this.currentPos = new AdvancePosition();
-        this.lastAttack;
         this.playerTable = playerBoard;
         this.computerTable = comBoard;
         this.currentShip = 0;
@@ -224,12 +223,10 @@ export class Computer{
 
     attack(){
         if(this.attackArray.length === 0){
-            this.lastAttack = this.randomAttack();
+            this.randomAttack();
         } else {
-            this.lastAttack = this.trackingAttack();
+            this.trackingAttack();
         }
-
-        console.log(this.lastAttack);
     }
 
     randomAttack(){
@@ -244,53 +241,51 @@ export class Computer{
             pos.value = 1;
         }
 
-        this.playerTable.computerAttacked(pos);
         this.syncPlayerShipArray(pos);
-        
-        return pos;
+        this.playerTable.computerAttacked(pos);
     }
 
     trackingAttack(){
-        console.log("trackingAttack");
-        if(this.trackingDir.length >= 4){
-            this.trackingDir = [];
-            this.attackArray.dequeue();
-        }
-        
-        this.currentPos = this.createNewPosWithDir(this.lastAttack, this.randomDirection());
+        if(this.trackingDir.length === 0){
+            this.currentPos = this.createNewPosWithDir(this.attackArray.peek(), this.randomDirection());
+            this.syncPlayerShipArray(this.currentPos);
+            this.playerTable.computerAttacked(this.currentPos);
+            this.trackingDir.push(this.currentPos.direction);
+        } else {
+            let currentDirection = this.currentPos.direction;
 
-        console.log(this.lastAttack);
-        if(this.lastAttack.value === 0 || this.lastAttack === -1){
-            console.log("again");
-            this.currentPos = this.attackArray.peek();
-            this.currentPos.direction = this.randomDirection();
+            if(this.currentPos.value === 1){
+                this.currentPos = this.createNewPosWithDir(...[this.currentPos], this.currentPos.direction);
+                this.syncPlayerShipArray(this.currentPos);
+                this.playerTable.computerAttacked(this.currentPos);
+            } else if(this.currentPos.value === 0){
+                if(this.trackingDir.length === 4){
+                    this.trackingDir = [];
+                    this.attackArray.dequeue();
+                    if(this.attackArray.length === 0){
+                        this.attack();
+                    }
+                }
+                
+                let direction = this.randomDirection();
+                while(this.trackingDir.some(dirs => this.currentPos.direction === dirs)){
+                    this.currentPos.direction = this.randomDirection();
+                }
+                this.currentPos = this.createNewPosWithDir(this.attackArray.peek(), direction);
+                this.syncPlayerShipArray(this.currentPos);
+                this.playerTable.computerAttacked(this.currentPos);
 
-            while(this.trackingDir.some(dirs => this.currentPos.direction === dirs)){
-                this.currentPos.direction = this.randomDirection();
+                if(!this.trackingDir.some(dirs => currentDirection === dirs)){
+                    this.trackingDir.push(currentDirection);
+                    console.log(this.trackingDir);
+                }
+            } else {
+                this.currentPos = this.createNewPosWithDir(...[this.attackArray.peek()], this.currentPos.direction);
+                this.trackingAttack();
             }
-        } else if(this.lastAttack === 1){
-            console.log("continue");
-            this.currentPos = this.lastAttack;
         }
 
         console.log(this.currentPos);
-        if(this.checkValidPos(this.currentPos)){
-            let newPos = this.createNewPosWithDir(this.currentPos,this.currentPos.direction);
-            if(newPos.value === 1){
-                this.currentPos = newPos;
-                this.playerTable.computerAttacked(this.currentPos);
-            } else {
-                this.playerTable.computerAttacked(newPos);
-                this.trackingDir.push(...[this.currentPos.direction]);
-            }
-
-            this.syncPlayerShipArray(newPos);
-
-            console.log(this.attackArray);
-            return newPos;
-        } else {
-            this.trackingAttack();
-        }
     }
 
     randomPos(){
@@ -312,46 +307,62 @@ export class Computer{
     }
 
     createNewPosWithDir(Position,direction){
-        const up = [1,0], down = [-1,0], left = [0,-1], right = [0,1];
+        const up = [-1,0], down = [1,0], left = [0,-1], right = [0,1];
         let x = Position.getX();
         let y = Position.getY();
 
         if(x === 0){
-            this.trackingDir.push("up");
+            if(!this.trackingDir.some(dirs => dirs === "up")){
+                this.trackingDir.push("up")
+            }
             if(direction === "up"){
+                x = this.attackArray.peek().getX();
+                y = this.attackArray.peek().getY();
                 direction = this.randomDirection();
-                while(this.trackingDir.some(dirs => this.currentPos.direction === dirs)){
-                    this.currentPos.direction = this.randomDirection();
+                while(this.trackingDir.some(dirs => direction === dirs)){
+                    direction = this.randomDirection();
                 }
             }
         }
 
         if(x === 9){
-            this.trackingDir.push("down");
+            if(!this.trackingDir.some(dirs => dirs === "down")){
+                this.trackingDir.push("down")
+            }
             if(direction === "down"){
+                x = this.attackArray.peek().getX();
+                y = this.attackArray.peek().getY();
                 direction = this.randomDirection();
-                while(this.trackingDir.some(dirs => this.currentPos.direction === dirs)){
-                    this.currentPos.direction = this.randomDirection();
+                while(this.trackingDir.some(dirs => direction === dirs)){
+                    direction = this.randomDirection();
                 }
             }
         }
 
         if(y === 0){
-            this.trackingDir.push("left");
+            if(!this.trackingDir.some(dirs => dirs === "left")){
+                this.trackingDir.push("left")
+            }
             if(direction === "left"){
+                x = this.attackArray.peek().getX();
+                y = this.attackArray.peek().getY();
                 direction = this.randomDirection();
-                while(this.trackingDir.some(dirs => this.currentPos.direction === dirs)){
-                    this.currentPos.direction = this.randomDirection();
+                while(this.trackingDir.some(dirs => direction === dirs)){
+                    direction = this.randomDirection();
                 }
             }
         }
 
         if(y === 9){
-            this.trackingDir.push("right");
+            if(!this.trackingDir.some(dirs => dirs === "right")){
+                this.trackingDir.push("right")
+            }
             if(direction === "right"){
+                x = this.attackArray.peek().getX();
+                y = this.attackArray.peek().getY();
                 direction = this.randomDirection();
-                while(this.trackingDir.some(dirs => this.currentPos.direction === dirs)){
-                    this.currentPos.direction = this.randomDirection();
+                while(this.trackingDir.some(dirs => direction === dirs)){
+                    direction = this.randomDirection();
                 }
             }
         }
