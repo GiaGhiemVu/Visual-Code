@@ -227,10 +227,10 @@ export class Computer{
         } else {
             this.trackingAttack();
         }
+        console.log("---------------------------------------");
     }
 
     randomAttack(){
-        console.log("randomAttack");
         let pos = this.randomPos();
         while(!this.checkValidPos(pos)){
             pos = this.randomPos();
@@ -243,10 +243,12 @@ export class Computer{
 
         this.syncPlayerShipArray(pos);
         this.playerTable.computerAttacked(pos);
+        console.log("randomAttack", pos);
     }
 
     trackingAttack(){
         if(this.trackingDir.length === 0){
+            console.log("1");
             this.currentPos = this.createNewPosWithDir(this.attackArray.peek(), this.randomDirection());
             this.syncPlayerShipArray(this.currentPos);
             this.playerTable.computerAttacked(this.currentPos);
@@ -255,10 +257,17 @@ export class Computer{
             let currentDirection = this.currentPos.direction;
 
             if(this.currentPos.value === 1){
+                console.log("2");
                 this.currentPos = this.createNewPosWithDir(...[this.currentPos], this.currentPos.direction);
                 this.syncPlayerShipArray(this.currentPos);
                 this.playerTable.computerAttacked(this.currentPos);
             } else if(this.currentPos.value === 0){
+                if(!this.trackingDir.some(dirs => currentDirection === dirs)){
+                    this.trackingDir.push(currentDirection);
+                    console.log(this.trackingDir);
+                }
+                
+                console.log(this.trackingDir.length);
                 if(this.trackingDir.length === 4){
                     this.trackingDir = [];
                     this.attackArray.dequeue();
@@ -266,22 +275,55 @@ export class Computer{
                         this.attack();
                     }
                 }
-                
+
                 let direction = this.randomDirection();
+                
+                while(this.trackingDir.some(dirs => direction === dirs)){
+                    direction = this.randomDirection();
+                }
+                
+                console.log("3", this.attackArray, direction);
+                this.currentPos = this.createNewPosWithDir(this.attackArray.peek() , direction);
+                
+                while(!this.checkValidPos(this.currentPos)){
+                    while(this.trackingDir.some(dirs => direction === dirs)){
+                        direction = this.randomDirection();
+                    }
+
+                    console.log("4", this.attackArray, direction);
+                    this.currentPos = this.createNewPosWithDir(this.attackArray.peek() , direction);
+                
+                    
+                    if(!this.checkValidPos(this.currentPos)){
+                        if(!this.trackingDir.some(dirs => this.currentPos.direction === dirs)){
+                            this.trackingDir.push(this.currentPos.direction);
+                        }
+                    }
+
+                    if(this.trackingDir.length === 4){
+                        this.attack();
+                    }
+                }
+                this.syncPlayerShipArray(this.currentPos);
+                this.playerTable.computerAttacked(this.currentPos);
+            } else {
+                console.log(this.trackingDir);
+
+                if(!this.trackingDir.some(dirs => this.currentPos.direction === dirs)){
+                    this.trackingDir.push(this.currentPos.direction);
+                }
+
+                if(this.trackingDir.length <= 4){
+                    this.trackingDir = [];
+                    this.attackArray.dequeue();
+                    console.log("reset tracking dir",this.trackingDir);
+                }
+
                 while(this.trackingDir.some(dirs => this.currentPos.direction === dirs)){
                     this.currentPos.direction = this.randomDirection();
                 }
-                this.currentPos = this.createNewPosWithDir(this.attackArray.peek(), direction);
-                this.syncPlayerShipArray(this.currentPos);
-                this.playerTable.computerAttacked(this.currentPos);
 
-                if(!this.trackingDir.some(dirs => currentDirection === dirs)){
-                    this.trackingDir.push(currentDirection);
-                    console.log(this.trackingDir);
-                }
-            } else {
-                this.currentPos = this.createNewPosWithDir(...[this.attackArray.peek()], this.currentPos.direction);
-                this.trackingAttack();
+                this.attack();
             }
         }
 
@@ -307,6 +349,7 @@ export class Computer{
     }
 
     createNewPosWithDir(Position,direction){
+        console.log("createFunction",Position);
         const up = [-1,0], down = [1,0], left = [0,-1], right = [0,1];
         let x = Position.getX();
         let y = Position.getY();
@@ -423,7 +466,6 @@ export class Computer{
     }
 }
 
-
 export class Player{
     constructor(Board){
         this.attackArray;
@@ -445,19 +487,25 @@ export class Controller{
     }
 
     checkWinningCondition(){
-        if(this.computerTable.table.some(cell => cell === 1)){
-            return false;
-        } else {
-            return true;
+        for(let i = 0; i < this.computerTable.size; i++){
+            for(let j = 0; j < this.computerTable.size; j++){
+                if(this.computerTable.table[i][j] === 1){
+                    return false;
+                }
+            }
         }
+        return true;
     }
 
     checkLosingCondition(){
-        if(this.playerTable.table.some(cell => cell === 1)){
-            return false;
-        } else {
-            return true;
+        for(let i = 0; i < this.playerTable.size; i++){
+            for(let j = 0; j < this.playerTable.size; j++){
+                if(this.playerTable.table[i][j] === 1){
+                    return false;
+                }
+            }
         }
+        return true;
     }
 
 

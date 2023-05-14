@@ -105,6 +105,12 @@ function changeState(){
                 if(game.controller.computerTable.table[cell.dataset.col][cell.dataset.row] !== -1){
                     game.controller.computerTable.playerAttacked(new Position(cell.dataset.col, cell.dataset.row));
                     game.controller.computer.attack();
+                    if(game.controller.checkLosingCondition()){
+                        console.log("loser");
+                    }
+                    if(game.controller.checkWinningCondition()){
+                        console.log("winner");
+                    }
                 } else {
                     console.log(cell);
                 }
