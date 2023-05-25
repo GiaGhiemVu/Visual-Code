@@ -15,8 +15,8 @@ This is a BattleShip simulator game
 - 2.Waiting to next turn.
 - 3.Continue until you destroy all Ship or you losing all Ship.
 
-# Langueges:
-- This project using 3 simple langueges Java, html, and css.
+# Languages:
+- This project using 3 simple languages Java, html, and css.
 
 # Reference:
 - This project take many source from outside so we give a big thanks to
