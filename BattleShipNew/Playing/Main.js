@@ -106,10 +106,12 @@ function changeState(){
                     game.controller.computerTable.playerAttacked(new Position(cell.dataset.col, cell.dataset.row));
                     game.controller.computer.attack();
                     if(game.controller.checkLosingCondition()){
-                        console.log("loser");
+                        window.location = '/BattleShipNew/Ending/Losing.html';
+
+                        
                     }
                     if(game.controller.checkWinningCondition()){
-                        console.log("winner");
+                        window.location = '/BattleShipNew/Ending/Winning.html';
                     }
                 } else {
                     console.log(cell);
