@@ -248,7 +248,6 @@ export class Computer{
 
     trackingAttack(){
         if(this.trackingDir.length === 0){
-            console.log("1");
             this.currentPos = this.createNewPosWithDir(this.attackArray.peek(), this.randomDirection());
             this.syncPlayerShipArray(this.currentPos);
             this.playerTable.computerAttacked(this.currentPos);
@@ -257,7 +256,6 @@ export class Computer{
             let currentDirection = this.currentPos.direction;
 
             if(this.currentPos.value === 1){
-                console.log("2");
                 this.currentPos = this.createNewPosWithDir(...[this.currentPos], this.currentPos.direction);
                 this.syncPlayerShipArray(this.currentPos);
                 this.playerTable.computerAttacked(this.currentPos);
@@ -282,7 +280,6 @@ export class Computer{
                     direction = this.randomDirection();
                 }
                 
-                console.log("3", this.attackArray, direction);
                 this.currentPos = this.createNewPosWithDir(this.attackArray.peek() , direction);
                 
                 while(!this.checkValidPos(this.currentPos)){
@@ -290,7 +287,6 @@ export class Computer{
                         direction = this.randomDirection();
                     }
 
-                    console.log("4", this.attackArray, direction);
                     this.currentPos = this.createNewPosWithDir(this.attackArray.peek() , direction);
                 
                     

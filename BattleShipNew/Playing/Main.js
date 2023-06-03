@@ -82,7 +82,9 @@ function changeState(){
             undoButton.remove();
             text.textContent = 'Combat Phase';
             beginButton.remove();
+
             game.controller.setState('combat');
+            
             playerTable.forEach(function(cell){
                 cell.removeEventListener('click', null);
             })
@@ -118,3 +120,4 @@ function changeState(){
         })
     }
 }
+
