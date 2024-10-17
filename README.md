@@ -1,27 +1,28 @@
 This is a BattleShip simulator game
 
 # Contribution by
+- Vũ Gia Khiêm – ITITIU20229 - Leader
 - Nguyễn Thị Kim Thu – ITITIU20315
 - Nguyễn Minh Hiếu – ITDSIU20063
 - Trần Quốc Anh – ITDSIU20001
-- Vũ Gia Khiêm – ITITIU20229
+
 
 # Win condition:
-- You need to destroy all Ship of opponent.
-- Ship contain all part of the ship.
+- You need to destroy all Ship of opponents.
+- Ship contains all parts of the ship.
 
 # Rule:
-- 1.Click on the oppinent sea zone to attack that coordinate.
-- 2.Waiting to next turn.
-- 3.Continue until you destroy all Ship or you losing all Ship.
+- 1. Click on the opponent's sea zone to attack that coordinate.
+- 2. Waiting for your next turn.
+- 3. Continue until you destroy all Ship or you lose all Ship.
 
 # Languages:
-- This project using 3 simple languages Java, html, and css.
+- This project uses 3 simple languages Java, HTML, and CSS.
 
 # Reference:
-- This project take many source from outside so we give a big thanks to
-anyone who have image, content, appear in this project.
-- This project is not use for commrcial so we hope any mistake or trouble
-about reference can be solve by a conservation.
+- This project takes many sources from outside so we give a big thanks to
+anyone who has images, or content, that appears in this project.
+- This project is not used for commercial so we hope any mistake or trouble
+with a reference can be solved by a conservation.
 
 # Reference link:
